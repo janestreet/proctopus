@@ -13,8 +13,8 @@ simultaneously and monitor their output.
    can find platform-specific instructions
    [here](https://opam.ocaml.org/doc/Install.html).
 2. `proctopus` uses [OxCaml](https://oxcaml.org/) so the next thing
-   you'll want to do is install `oxcaml` by following the instructions
-   [here](https://oxcaml.org/get-oxcaml/).
+   you'll want to do is install `oxcaml` by running:
+   `opam switch create oxcaml-dev --repos=oxcaml-dev=git+https://github.com/oxcaml/opam-repository.git#dev,default oxcaml.latest`
 3. Run `opam install proctopus`. This will install the `proctopus`
    binary onto your `PATH`, along with its dependencies.
 
