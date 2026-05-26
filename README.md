@@ -2,6 +2,8 @@ A TUI application for managing multiple processes locally. Useful for testing
 multi-process applications where you need to run several services
 simultaneously and monitor their output.
 
+![Proctopus GIF Demo](./demos/proctopus-demo.gif)
+
 ## Installation
 
 1. If you are new to OCaml - or if you haven't already - **install
@@ -83,3 +85,9 @@ exec proctopus \
 well.)
 
 You can find working examples in the `example` directory.
+
+You can pass `-i name:command`, to make proctopus run your command
+"interactively", letting you embed other TUI inside of proctopus. You can take a
+look at `example/08-interactive.sh` for some examples.
+
+![Proctopus Interactive GIF Example](./demos/proctopus-interactive-demo.gif)
