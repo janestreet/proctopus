@@ -31,10 +31,10 @@ let create (local_ graph) =
   let view =
     let%arr is_visible
     and toast_state
-    and flavor = Bonsai_term_catppuccin.flavor graph in
+    and flavor = Bonsai_term_color_scheme.flavor graph in
     match is_visible, toast_state with
     | true, Some (_, bg, text) ->
-      let crust = Bonsai_term_catppuccin.color ~flavor Crust in
+      let crust = Bonsai_term_color_scheme.color ~flavor Crust in
       let toast_text = [%string " %{text} "] in
       View.text ~attrs:[ Attr.fg crust; Attr.bg bg ] toast_text
     | _ -> View.none

@@ -326,12 +326,12 @@ end
 let render_view
   ~(render_item : int -> 'a Row.t -> Item_display.t)
   ~(highlight : Bonsai_term.View.t -> Bonsai_term.View.t)
-  ~(flavor : Bonsai_term_catppuccin.Flavor.t)
+  ~(flavor : Bonsai_term_color_scheme.Flavor.t)
   (model : 'a Model.t)
   : Bonsai_term.View.t
   =
   let open Bonsai_term in
-  let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+  let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
   let content_rows = Model.visible_rows model in
   let selected_index = Model.selected_index model in
   let items, statuses =
@@ -428,7 +428,7 @@ let component
   let view =
     let%arr model
     and render_item
-    and flavor = Bonsai_term_catppuccin.flavor graph
+    and flavor = Bonsai_term_color_scheme.flavor graph
     and dimensions
     and scroll_offset
     and highlight in

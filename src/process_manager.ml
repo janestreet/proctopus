@@ -1,6 +1,5 @@
 open! Core
 open Async
-module Big_int = Nums_flat.Big_int
 
 type process_info =
   { stdout : Reader.t

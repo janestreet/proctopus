@@ -47,12 +47,12 @@ module Styled = struct
     }
 
   let create graph =
-    let%map flavor = Bonsai_term_catppuccin.flavor graph in
-    let text_color = Bonsai_term_catppuccin.color ~flavor Text in
-    let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
-    let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
-    let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
-    let lavender = Bonsai_term_catppuccin.color ~flavor Lavender in
+    let%map flavor = Bonsai_term_color_scheme.flavor graph in
+    let text_color = Bonsai_term_color_scheme.color ~flavor Text in
+    let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
+    let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
+    let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
+    let lavender = Bonsai_term_color_scheme.color ~flavor Lavender in
     { text = (fun s -> View.text s)
     ; muted = (fun s -> View.text ~attrs:[ Attr.fg subtext_color ] s)
     ; label = (fun s -> View.text ~attrs:[ Attr.fg mauve; Attr.bold ] s)
@@ -60,7 +60,7 @@ module Styled = struct
     ; pad = (fun s -> View.text s)
     ; blank = View.text ""
     ; fg = text_color
-    ; bg = Bonsai_term_catppuccin.color ~flavor Crust
+    ; bg = Bonsai_term_color_scheme.color ~flavor Crust
     ; highlight = (fun v -> View.with_colors' ~bg:surface0 v)
     ; modal_bg = surface0
     ; modal_active_border = lavender
@@ -299,14 +299,14 @@ let make_render_item
   ~title
   ~(process_states : Process_state.t Command_id.Map.t)
   ~(group_states : Group_state.t Command_id.Map.t)
-  ~(flavor : Bonsai_term_catppuccin.Flavor.t)
+  ~(flavor : Bonsai_term_color_scheme.Flavor.t)
   : int -> Tree_item.t Navigable_tree.Row.t -> Navigable_tree.Item_display.t
   =
-  let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
-  let green = Bonsai_term_catppuccin.color ~flavor Green in
-  let red = Bonsai_term_catppuccin.color ~flavor Red in
-  let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
-  let blue = Bonsai_term_catppuccin.color ~flavor Blue in
+  let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
+  let green = Bonsai_term_color_scheme.color ~flavor Green in
+  let red = Bonsai_term_color_scheme.color ~flavor Red in
+  let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
+  let blue = Bonsai_term_color_scheme.color ~flavor Blue in
   fun i row ->
     match i with
     | 0 ->
@@ -453,14 +453,14 @@ let render_preview_header
   and group_states
   and width
   and show_process_tree
-  and flavor = Bonsai_term_catppuccin.flavor graph
+  and flavor = Bonsai_term_color_scheme.flavor graph
   and styled = Styled.create graph in
-  let blue = Bonsai_term_catppuccin.color ~flavor Blue in
-  let teal = Bonsai_term_catppuccin.color ~flavor Teal in
-  let green = Bonsai_term_catppuccin.color ~flavor Green in
-  let red = Bonsai_term_catppuccin.color ~flavor Red in
-  let peach = Bonsai_term_catppuccin.color ~flavor Peach in
-  let sparkline_bg = Bonsai_term_catppuccin.color ~flavor Surface0 in
+  let blue = Bonsai_term_color_scheme.color ~flavor Blue in
+  let teal = Bonsai_term_color_scheme.color ~flavor Teal in
+  let green = Bonsai_term_color_scheme.color ~flavor Green in
+  let red = Bonsai_term_color_scheme.color ~flavor Red in
+  let peach = Bonsai_term_color_scheme.color ~flavor Peach in
+  let sparkline_bg = Bonsai_term_color_scheme.color ~flavor Surface0 in
   match selected_tree_item ~nav_model with
   | None -> styled.muted "(no selection)"
   | Some (Section name) ->
@@ -592,8 +592,8 @@ let render_preview_header
     let process_state =
       Map.find process_states id |> Option.value_or_thunk ~default:Process_state.create
     in
-    let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
-    let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+    let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
+    let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
     let is_paused = Process_state.is_paused process_state in
     let status_color =
       Process_status.status_color
@@ -685,7 +685,7 @@ let render_preview_header
        then []
        else [ styled.blank ])
   | Some (Initializing_group { id; bash_code }) ->
-    let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
+    let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
     let group_state =
       Map.find group_states id |> Option.value_or_thunk ~default:Group_state.create
     in
@@ -779,7 +779,7 @@ let render_output_content
   and message_mode
   and filter_tokens
   and width
-  and flavor = Bonsai_term_catppuccin.flavor graph in
+  and flavor = Bonsai_term_color_scheme.flavor graph in
   let matches_filter ~path line =
     let level =
       if not parse_logs
@@ -792,11 +792,11 @@ let render_output_content
     in
     Filter_query.matches filter_tokens ~path ~level ~line
   in
-  let red = Bonsai_term_catppuccin.color ~flavor Red in
-  let green = Bonsai_term_catppuccin.color ~flavor Green in
-  let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
-  let cyan = Bonsai_term_catppuccin.color ~flavor Teal in
-  let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+  let red = Bonsai_term_color_scheme.color ~flavor Red in
+  let green = Bonsai_term_color_scheme.color ~flavor Green in
+  let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
+  let cyan = Bonsai_term_color_scheme.color ~flavor Teal in
+  let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
   let muted_attrs = [ Attr.fg subtext_color ] in
   let zone = force Time_ns.Zone.local in
   (* style_line returns (styled_text list, formatted_message, new_previous_time) where
@@ -1108,8 +1108,8 @@ let render_output_interactive
         and { Dimensions.width = outer_width; height = _ } = tmux_dimensions
         and show_border
         and focus_mode
-        and flavor = Bonsai_term_catppuccin.flavor graph in
-        let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
+        and flavor = Bonsai_term_color_scheme.flavor graph in
+        let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
         let tmux_area =
           if is_closed
           then (
@@ -1132,7 +1132,7 @@ let render_output_interactive
           [%equal: Focus_mode.t] focus_mode (Focus_mode.Output Interactive)
         in
         let hint =
-          let muted = Bonsai_term_catppuccin.color ~flavor Overlay0 in
+          let muted = Bonsai_term_color_scheme.color ~flavor Overlay0 in
           if is_focused
           then View.text ~attrs:[ Attr.fg muted ] " Ctrl-Q to unfocus "
           else if not is_closed
@@ -1143,8 +1143,8 @@ let render_output_interactive
         then (
           let border_color =
             if is_focused
-            then Bonsai_term_catppuccin.color ~flavor Lavender
-            else Bonsai_term_catppuccin.color ~flavor Surface0
+            then Bonsai_term_color_scheme.color ~flavor Lavender
+            else Bonsai_term_color_scheme.color ~flavor Surface0
           in
           let box =
             Bonsai_term_border_box.view
@@ -1452,12 +1452,12 @@ let render_preview
     let scroll_warning =
       let%arr stuck_to_bottom
       and { Dimensions.height; width } = scroller_dimensions
-      and flavor = Bonsai_term_catppuccin.flavor graph in
+      and flavor = Bonsai_term_color_scheme.flavor graph in
       if stuck_to_bottom
       then View.text ""
       else (
-        let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
-        let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
+        let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
+        let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
         let banner_text = " G to autoscroll " in
         let banner = View.text ~attrs:[ Attr.fg yellow; Attr.bg surface0 ] banner_text in
         (* Position at the bottom of the scroller area *)
@@ -1469,13 +1469,13 @@ let render_preview
       let%arr filter_textbox_view
       and filter_visible
       and { Dimensions.width; _ } = dimensions
-      and flavor = Bonsai_term_catppuccin.flavor graph in
+      and flavor = Bonsai_term_color_scheme.flavor graph in
       if not filter_visible
       then View.none
       else (
-        let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
-        let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
-        let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
+        let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
+        let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
+        let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
         let prefix_view =
           View.text ~attrs:[ Attr.fg mauve; Attr.bold; Attr.bg surface0 ] "/"
         in
@@ -1537,10 +1537,10 @@ let render_preview
 
 let render_instructions ~(width : int Bonsai.t) (local_ graph) =
   let%arr width
-  and flavor = Bonsai_term_catppuccin.flavor graph in
+  and flavor = Bonsai_term_color_scheme.flavor graph in
   (* Inverse color scheme: dark text on muted light background *)
-  let key_color = Bonsai_term_catppuccin.color ~flavor Subtext1 in
-  let action_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+  let key_color = Bonsai_term_color_scheme.color ~flavor Subtext1 in
+  let action_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
   let instruction key action =
     View.hcat
       [ View.text ~attrs:[ Attr.bold; Attr.fg key_color ] key
@@ -1651,11 +1651,11 @@ let render_help_modal ~dimensions (local_ graph) =
     { Dimensions.height = modal_height; width = modal_width }
   in
   let help_view =
-    let%arr flavor = Bonsai_term_catppuccin.flavor graph
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph
     and { Dimensions.width = content_width; _ } = modal_dimensions in
-    let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
-    let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
-    let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
+    let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
+    let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
+    let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
     let key_width, action_width = help_column_widths in
     let desc_width = max 10 (content_width - key_width - action_width) in
     (* Wrap text to fit within a given width, splitting on word boundaries *)
@@ -1763,16 +1763,16 @@ let render_output_menu
   ~(message_mode : Parsed_log_line.Message_mode.t Bonsai.t)
   (local_ graph)
   =
-  let%arr flavor = Bonsai_term_catppuccin.flavor graph
+  let%arr flavor = Bonsai_term_color_scheme.flavor graph
   and { Dimensions.height; width } = dimensions
   and wrap_output
   and parse_logs
   and timestamp_mode
   and message_mode
   and styled = Styled.create graph in
-  let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
-  let green = Bonsai_term_catppuccin.color ~flavor Green in
-  let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+  let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
+  let green = Bonsai_term_color_scheme.color ~flavor Green in
+  let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
   let title = View.text ~attrs:[ Attr.fg mauve; Attr.bold ] "Output Options" in
   let space = View.text " " in
   let subtitle =
@@ -1871,10 +1871,10 @@ let render_command_search_modal
       Some (name, item))
   in
   let render_item =
-    let%arr flavor = Bonsai_term_catppuccin.flavor graph in
-    let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
-    let green = Bonsai_term_catppuccin.color ~flavor Green in
-    let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph in
+    let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
+    let green = Bonsai_term_color_scheme.color ~flavor Green in
+    let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
     fun name (item : Tree_item.t) ~is_selected ->
       let icon_text =
         match item with
@@ -2233,9 +2233,9 @@ let render_debug_panel
   let view =
     let%arr scrolled_debug
     and { Dimensions.height; width } = dimensions
-    and flavor = Bonsai_term_catppuccin.flavor graph in
-    let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
-    let yellow = Bonsai_term_catppuccin.color ~flavor Yellow in
+    and flavor = Bonsai_term_color_scheme.flavor graph in
+    let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
+    let yellow = Bonsai_term_color_scheme.color ~flavor Yellow in
     let debug_header =
       View.text
         ~attrs:[ Attr.fg yellow; Attr.bg surface0; Attr.bold ]
@@ -2254,7 +2254,7 @@ let render_debug_panel
     (* Add opaque background behind debug panel *)
     let bg = View.rectangle ~height ~width () in
     View.zcat [ content; bg ]
-    |> View.with_colors' ~bg:(Bonsai_term_catppuccin.color ~flavor Mantle)
+    |> View.with_colors' ~bg:(Bonsai_term_color_scheme.color ~flavor Mantle)
   in
   let%arr view and handler in
   view, handler
@@ -2268,8 +2268,8 @@ let backdrop ~dimensions (local_ _graph) =
 let vertical_divider ~height ~(focus_mode : Focus_mode.t Bonsai.t) (local_ graph) =
   let%arr height
   and focus_mode
-  and flavor = Bonsai_term_catppuccin.flavor graph in
-  let color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
+  and flavor = Bonsai_term_color_scheme.flavor graph in
+  let color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
   let top_char =
     match focus_mode with
     | Tree | Filter_input _ | Debug _ | Modal _ -> "┐"
@@ -2290,12 +2290,12 @@ let render_error_bar
   =
   let%arr current_error
   and width
-  and flavor = Bonsai_term_catppuccin.flavor graph in
+  and flavor = Bonsai_term_color_scheme.flavor graph in
   match current_error with
   | None -> None
   | Some error_msg ->
-    let red = Bonsai_term_catppuccin.color ~flavor Red in
-    let crust = Bonsai_term_catppuccin.color ~flavor Crust in
+    let red = Bonsai_term_color_scheme.color ~flavor Red in
+    let crust = Bonsai_term_color_scheme.color ~flavor Crust in
     let prefix = " ⚠ " in
     let suffix = " [Space to dismiss] " in
     let prefix_len = String.length prefix in
@@ -2401,13 +2401,13 @@ let component
   in
   let filter_input =
     let cursor_attrs =
-      let%arr flavor = Bonsai_term_catppuccin.flavor graph in
-      let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
+      let%arr flavor = Bonsai_term_color_scheme.flavor graph in
+      let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
       [ Attr.bg mauve ]
     in
     let text_attrs =
-      let%arr flavor = Bonsai_term_catppuccin.flavor graph in
-      let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
+      let%arr flavor = Bonsai_term_color_scheme.flavor graph in
+      let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
       [ Attr.bg surface0 ]
     in
     Filter_input.component ~cursor_attrs ~text_attrs ~is_focused:filter_input_active graph
@@ -2550,7 +2550,7 @@ let component
   let render_item =
     let%arr process_states
     and group_states
-    and flavor = Bonsai_term_catppuccin.flavor graph in
+    and flavor = Bonsai_term_color_scheme.flavor graph in
     make_render_item ~title ~process_states ~group_states ~flavor
   in
   (* Calculate tree dimensions (left half of content area) *)
@@ -2741,14 +2741,14 @@ let component
     let%arr clipboard_copy
     and debug
     and show_toast = toaster.show
-    and flavor = Bonsai_term_catppuccin.flavor graph in
+    and flavor = Bonsai_term_color_scheme.flavor graph in
     fun text ->
       let%bind.Effect result =
         clipboard_copy Bonsai_term_clipboard.Selection.Clipboard text
       in
       match result with
       | Ok () ->
-        let green = Bonsai_term_catppuccin.color ~flavor Green in
+        let green = Bonsai_term_color_scheme.color ~flavor Green in
         show_toast ~bg:green "Copied!"
       | Error err ->
         debug [%string "Failed to copy: %{Error.to_string_hum err}"];

@@ -126,7 +126,7 @@ let run_tui ~title ~channel ~start_fullscreen ~initial_select ~initial_collapse 
           log_or_error "Resume_process" result)
     in
     let%sub ~view, ~handler, ~inject, ~nav_inject, ~nav_model =
-      Bonsai_term_catppuccin.set_flavor_within
+      Bonsai_term_color_scheme.set_flavor_within
         (Bonsai.return flavor)
         (fun graph ->
           App.component
@@ -483,9 +483,9 @@ Use -- to pass all remaining arguments as a single auto command.|}
          "-theme"
          (Command.Arg_type.enumerated_sexpable
             ~list_values_in_help:true
-            (module Bonsai_term_catppuccin.Flavor_name))
-         [%sexp_of: Bonsai_term_catppuccin.Flavor_name.t]
-         ~default:Bonsai_term_catppuccin.Flavor_name.Mocha
+            (module Bonsai_term_color_scheme.Flavor_name))
+         [%sexp_of: Bonsai_term_color_scheme.Flavor_name.t]
+         ~default:(Bonsai_term_color_scheme.Flavor_name.Catppuccin Mocha)
          ~doc:"THEME color scheme"
      and initial_select =
        flag
@@ -533,7 +533,7 @@ Use -- to pass all remaining arguments as a single auto command.|}
            in
            entries_to_run_format entries
        in
-       let flavor = Bonsai_term_catppuccin.Flavor_name.to_flavor flavor in
+       let flavor = Bonsai_term_color_scheme.Flavor_name.to_flavor flavor in
        let log_config =
          Option.map log_dir ~f:(fun log_dir ->
            { Log_config.log_dir; append = log_append; split = log_split })

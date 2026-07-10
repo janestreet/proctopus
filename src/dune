@@ -2,7 +2,7 @@
  (name proctopus_app)
  (public_name proctopus.app)
  (libraries async babel bonsai bonsai_term bonsai_term_components.border_box
-   bonsai_term_components.catppuccin bonsai_term_components.clipboard
+   bonsai_term_components.clipboard bonsai_term_components.color_scheme
    bonsai_term_components.scroller bonsai_term_components.tmux core core_unix
    expectable expectree num pending_or_error procfs sexp_pretty
    core_unix.signal_unix tmux uutf vec)

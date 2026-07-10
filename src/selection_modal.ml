@@ -26,13 +26,13 @@ let component
   (* Text input for the search query *)
   let is_focused = Bonsai.return true in
   let cursor_attrs =
-    let%arr flavor = Bonsai_term_catppuccin.flavor graph in
-    let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph in
+    let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
     [ Attr.bg mauve ]
   in
   let text_attrs =
-    let%arr flavor = Bonsai_term_catppuccin.flavor graph in
-    let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph in
+    let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
     [ Attr.bg surface0 ]
   in
   let search_input = Filter_input.component ~cursor_attrs ~text_attrs ~is_focused graph in
@@ -70,16 +70,16 @@ let component
     if len = 0 then 0 else Int.min selected_idx (len - 1)
   in
   let view =
-    let%arr flavor = Bonsai_term_catppuccin.flavor graph
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph
     and { Dimensions.height; width } = dimensions
     and { Filter_input.view = search_input_view; _ } = search_input
     and filtered_items
     and clamped_selected_idx
     and render_item in
-    let mauve = Bonsai_term_catppuccin.color ~flavor Mauve in
-    let subtext_color = Bonsai_term_catppuccin.color ~flavor Subtext0 in
-    let surface0 = Bonsai_term_catppuccin.color ~flavor Surface0 in
-    let lavender = Bonsai_term_catppuccin.color ~flavor Lavender in
+    let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
+    let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
+    let surface0 = Bonsai_term_color_scheme.color ~flavor Surface0 in
+    let lavender = Bonsai_term_color_scheme.color ~flavor Lavender in
     let selection_bg = surface0 in
     let modal_bg = surface0 in
     let modal_width = Int.min (width - 6) 60 |> Int.max 30 in
