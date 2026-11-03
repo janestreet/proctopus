@@ -69,8 +69,16 @@ let build_tree_from_entries entries ~prefix ~collapse_paths =
   collapse_matching_sections tree ~prefix ~collapse_paths
 ;;
 
-let run_tui ~title ~channel ~start_fullscreen ~initial_select ~initial_collapse ~flavor =
-  Bonsai_term.start_with_exit (fun ~exit ~dimensions graph ->
+let run_tui
+  ~title
+  ~channel
+  ~prepare_to_restart
+  ~start_fullscreen
+  ~initial_select
+  ~initial_collapse
+  ~flavor
+  =
+  let app ~exit ~dimensions graph =
     let open Bonsai.Let_syntax in
     let debug_messages = Bonsai.Expert.Var.create [ "Starting proctopus..." ] in
     let debug msg =
@@ -125,22 +133,24 @@ let run_tui ~title ~channel ~start_fullscreen ~initial_select ~initial_collapse 
           in
           log_or_error "Resume_process" result)
     in
-    let%sub ~view, ~handler, ~inject, ~nav_inject, ~nav_model =
-      Bonsai_term_color_scheme.set_flavor_within
-        (Bonsai.return flavor)
-        (fun graph ->
-          App.component
-            ~title
-            ~debug_messages:(Bonsai.Expert.Var.value debug_messages)
-            ~debug:(Bonsai.return debug)
-            ~current_error:(Bonsai.Expert.Var.value current_error)
-            ~dismiss_error:(Bonsai.return dismiss_error)
-            ~dimensions
-            ~on_event:(Bonsai.return handle_event)
-            ~exit:(Bonsai.return exit)
-            ~start_fullscreen
-            graph)
+    let component graph =
+      App.component
+        ~title
+        ~debug_messages:(Bonsai.Expert.Var.value debug_messages)
+        ~debug:(Bonsai.return debug)
+        ~current_error:(Bonsai.Expert.Var.value current_error)
+        ~dismiss_error:(Bonsai.return dismiss_error)
+        ~dimensions
+        ~on_event:(Bonsai.return handle_event)
+        ~exit:(Bonsai.return exit)
+        ~start_fullscreen
         graph
+    in
+    let%sub ~view, ~handler, ~inject, ~nav_inject, ~nav_model =
+      match flavor with
+      | None -> component graph
+      | Some flavor ->
+        Bonsai_term_color_scheme.set_flavor_within (Bonsai.return flavor) component graph
     in
     let nav_inject_ref = ref (fun _ -> Effect.Ignore) in
     (* Track whether selection is explicit by observing the model. This ref gets updated
@@ -308,7 +318,17 @@ let run_tui ~title ~channel ~start_fullscreen ~initial_select ~initial_collapse 
           match msg.level with
           | Protocol.Client_log.Level.Error -> set_error msg.message
           | Protocol.Client_log.Level.Debug -> debug msg.message)));
-    ~view, ~handler)
+    ~view, ~handler
+  in
+  let app_for_devtools ~exit ~dimensions graph =
+    let ~view, ~handler = app ~exit ~dimensions graph in
+    let handler =
+      let%arr.Bonsai handler in
+      fun event -> Captured_or_ignored.capture (handler event)
+    in
+    ~view, ~handler
+  in
+  Bonsai_term_devtools_kernel.start_with_exit ~prepare_to_restart app_for_devtools
 ;;
 
 (* Parse CLI arguments into protocol entries, preserving CLI position order *)
@@ -342,13 +362,6 @@ let parse_entries ~auto_args ~no_auto_args ~groups ~interactive_args ~all_args =
         (Protocol.Register_commands.Entry.Command
            { id; bash_code; run_on_start = true; is_interactive = true }))
     else None)
-;;
-
-let shutdown () =
-  (* The default [force] is 10s, but allow extra time in case child processes are slow to
-     shut down. *)
-  let force = after (sec 30.) in
-  Shutdown.shutdown ~force 0
 ;;
 
 let run
@@ -396,8 +409,18 @@ let run
     | [ (~name:_, ~command:_, ~kind:`Auto) ] -> true
     | _ -> false
   in
-  (* Install signal handlers for graceful shutdown *)
-  Signal.handle Signal.terminating ~f:(fun (_ : Signal.t) -> shutdown ());
+  (* All exits funnel through [Shutdown] so that the [at_shutdown] handler below gets to
+     terminate the managed processes: returning from [run] (with or without an error)
+     makes [Command.async_or_error] call [Shutdown.shutdown], terminating signals call it
+     directly, and an unhandled exception (e.g. the stdout writer failing with EIO after
+     the terminal has gone away underneath us) is turned into a shutdown instead of
+     exiting immediately.
+
+     The default [force] is 10s, but allow extra time in case child processes are slow to
+     shut down. *)
+  Shutdown.set_default_force (fun () -> after (sec 30.));
+  Shutdown.shutdown_on_unhandled_exn ();
+  Signal.handle Signal.terminating ~f:(fun (_ : Signal.t) -> Shutdown.shutdown 0);
   (* Start the channel if none exists *)
   let%bind channel_opt, socket_path =
     match Sys.getenv "PROCTOPUS_SOCKET" with
@@ -410,20 +433,35 @@ let run
   let%bind.Deferred.Or_error instance =
     Instance.create ~socket_path ~entries ~log_config
   in
-  (* Run TUI if we're the root, then wait for instance to close *)
-  let%bind.Deferred.Or_error () =
-    match channel_opt with
-    | Some channel ->
-      run_tui ~title ~channel ~start_fullscreen ~initial_select ~initial_collapse ~flavor
-    | None -> Deferred.Or_error.return ()
-  in
-  let%bind () = Instance.closed instance
-  and () =
-    match channel_opt with
-    | Some channel -> Channel.close channel
-    | None -> Deferred.return ()
-  in
-  Deferred.Or_error.return ()
+  Shutdown.at_shutdown (fun () ->
+    Deferred.all_unit
+      [ Instance.close instance
+      ; (match channel_opt with
+         | Some channel -> Channel.close channel
+         | None -> return ())
+      ]);
+  (* Run the TUI if we're the root, or wait for the instance to be closed via the socket
+     if not. *)
+  match channel_opt with
+  | Some channel ->
+    (* Shut down managed processes before the devtools restart the app in place. The
+       devtools' default restart wouldn't terminate them, which causes trouble for
+       operations that aren't idempotent (like listening on a port). *)
+    let prepare_to_restart =
+      Effect.of_deferred_thunk (fun () ->
+        Deferred.all_unit [ Channel.close channel; Instance.closed instance ])
+    in
+    run_tui
+      ~title
+      ~channel
+      ~prepare_to_restart
+      ~start_fullscreen
+      ~initial_select
+      ~initial_collapse
+      ~flavor
+  | None ->
+    let%map () = Instance.closed instance in
+    Ok ()
 ;;
 
 let entries_to_run_format entries
@@ -479,13 +517,12 @@ Use -- to pass all remaining arguments as a single auto command.|}
          (optional_with_default "proctopus" string)
          ~doc:"TITLE title displayed at the top of the tree (default: proctopus)"
      and flavor =
-       flag_optional_with_default_doc_sexp
+       flag
          "-theme"
-         (Command.Arg_type.enumerated_sexpable
-            ~list_values_in_help:true
-            (module Bonsai_term_color_scheme.Flavor_name))
-         [%sexp_of: Bonsai_term_color_scheme.Flavor_name.t]
-         ~default:(Bonsai_term_color_scheme.Flavor_name.Catppuccin Mocha)
+         (optional
+            (Command.Arg_type.enumerated_sexpable
+               ~list_values_in_help:true
+               (module Bonsai_term_color_scheme.Flavor_name)))
          ~doc:"THEME color scheme"
      and initial_select =
        flag
@@ -533,7 +570,7 @@ Use -- to pass all remaining arguments as a single auto command.|}
            in
            entries_to_run_format entries
        in
-       let flavor = Bonsai_term_color_scheme.Flavor_name.to_flavor flavor in
+       let flavor = Option.map flavor ~f:Bonsai_term_color_scheme.Flavor_name.to_flavor in
        let log_config =
          Option.map log_dir ~f:(fun log_dir ->
            { Log_config.log_dir; append = log_append; split = log_split })

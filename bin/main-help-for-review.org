@@ -37,12 +37,11 @@
 :                                instance.
 :   [-no-auto NAME[:CMD]] ...  . commands that don't run on startup
 :   [-select PATH]             . initially select the item at PATH (e.g., foo/bar)
-:   [-theme THEME]             . color scheme (default: (Catppuccin Mocha)) (can
-:                                be: (Catppuccin Frappe), (Catppuccin Latte),
-:                                (Catppuccin Macchiato), (Catppuccin Mocha),
-:                                Bluloco, Dracula, Gruvbox_dark, Gruvbox_light,
-:                                Kanagawa, Monokai, Solarized_dark,
-:                                Solarized_light, Terminal_16,
+:   [-theme THEME]             . color scheme (can be: (Catppuccin Frappe),
+:                                (Catppuccin Latte), (Catppuccin Macchiato),
+:                                (Catppuccin Mocha), Bluloco, Dracula,
+:                                Gruvbox_dark, Gruvbox_light, Kanagawa, Monokai,
+:                                Solarized_dark, Solarized_light, Terminal_16,
 :                                Terminal_16_inverted, Tokyo_night_dark,
 :                                Tokyo_night_light, Vscode_dark, Vscode_light)
 :   [-title TITLE]             . title displayed at the top of the tree (default:

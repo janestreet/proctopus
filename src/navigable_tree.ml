@@ -1,3 +1,5 @@
+[@@@alert "-for_ppx_bonsai"]
+
 open! Core
 open Bonsai.Let_syntax
 

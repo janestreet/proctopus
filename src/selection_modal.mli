@@ -41,5 +41,5 @@ val component
   -> render_item:(string -> 'a -> is_selected:bool -> Item_view.t) Bonsai.t
   -> on_select:('a -> unit Effect.t) Bonsai.t
   -> dimensions:Dimensions.t Bonsai.t
-  -> local_ Bonsai.graph
+  -> Bonsai.graph @ local
   -> 'a t Bonsai.t

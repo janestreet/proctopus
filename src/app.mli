@@ -46,7 +46,7 @@ val component
   -> on_event:(App_event.t -> unit Bonsai.Effect.t) Bonsai.t
   -> exit:(unit -> unit Bonsai.Effect.t) Bonsai.t
   -> start_fullscreen:bool
-  -> local_ Bonsai.graph
+  -> Bonsai.graph @ local
   -> (view:Bonsai_term.View.t
      * handler:(Bonsai_term.Event.t -> unit Bonsai.Effect.t)
      * inject:(Action.t -> unit Bonsai.Effect.t)

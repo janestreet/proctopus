@@ -296,6 +296,11 @@ let closed t =
   t.cleanup_finished
 ;;
 
+let close t =
+  let%bind () = Rpc.Connection.close t.connection in
+  t.cleanup_finished
+;;
+
 (* Connect to server and register commands *)
 let create ~socket_path ~(entries : Protocol.Register_commands.Entry.t list) ~log_config =
   let prefix =

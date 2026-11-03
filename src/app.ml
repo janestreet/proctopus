@@ -47,7 +47,7 @@ module Styled = struct
     }
 
   let create graph =
-    let%map flavor = Bonsai_term_color_scheme.flavor graph in
+    let%arr flavor = Bonsai_term_color_scheme.flavor graph in
     let text_color = Bonsai_term_color_scheme.color ~flavor Text in
     let subtext_color = Bonsai_term_color_scheme.color ~flavor Subtext0 in
     let mauve = Bonsai_term_color_scheme.color ~flavor Mauve in
@@ -1535,8 +1535,13 @@ let render_preview
     view, output_handler, interactive_handler, scroll_inject, output_result, header_height)
 ;;
 
-let render_instructions ~(width : int Bonsai.t) (local_ graph) =
+let render_instructions
+  ~(width : int Bonsai.t)
+  ~(focus_mode : Focus_mode.t Bonsai.t)
+  (local_ graph)
+  =
   let%arr width
+  and focus_mode
   and flavor = Bonsai_term_color_scheme.flavor graph in
   (* Inverse color scheme: dark text on muted light background *)
   let key_color = Bonsai_term_color_scheme.color ~flavor Subtext1 in
@@ -1561,7 +1566,9 @@ let render_instructions ~(width : int Bonsai.t) (local_ graph) =
          ; instruction "f" "Fullscreen"
          ; instruction "/" "Filter"
          ; instruction "^K" "Jump"
-         ; instruction "Tab" "Focus"
+         ; (if [%equal: Focus_mode.t] focus_mode (Output Interactive)
+            then instruction "Ctrl+Q" "Unfocus"
+            else instruction "Tab" "Focus")
          ])
   in
   (* Pad the instruction bar to fill the full width *)
@@ -2628,7 +2635,7 @@ let component
     let%arr { Dimensions.width; _ } = dimensions in
     width
   in
-  let instructions = render_instructions ~width graph in
+  let instructions = render_instructions ~width ~focus_mode graph in
   let content_height =
     let%arr { Dimensions.height; _ } = dimensions in
     height - 1

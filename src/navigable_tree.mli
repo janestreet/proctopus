@@ -102,7 +102,7 @@ val component
   -> highlight:(Bonsai_term.View.t -> Bonsai_term.View.t) Bonsai.t
   -> dimensions:Bonsai_term.Dimensions.t Bonsai.t
   -> strip_depth:int
-  -> local_ Bonsai.graph
+  -> Bonsai.graph @ local
   -> view:Bonsai_term.View.t Bonsai.t
      * model:'a Model.t Bonsai.t
      * inject:('a Action.t -> unit Bonsai.Effect.t) Bonsai.t

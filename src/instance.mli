@@ -20,3 +20,7 @@ val create
 (** Returns a deferred that becomes determined when the connection closes. The process
     manager is automatically cleaned up when the connection closes. *)
 val closed : t -> unit Deferred.t
+
+(** Close the connection to the channel and wait for cleanup to finish: all managed
+    processes are terminated and interactive sessions are closed. *)
+val close : t -> unit Deferred.t

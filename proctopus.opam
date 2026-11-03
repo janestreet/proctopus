@@ -17,6 +17,7 @@ depends: [
   "bonsai"
   "bonsai_term"
   "bonsai_term_components"
+  "bonsai_term_devtools_kernel"
   "core"
   "core_unix"
   "expectable"
@@ -27,9 +28,9 @@ depends: [
   "sexp_pretty"
   "tmux"
   "vec"
-  "dune"                   {>= "3.17.0"}
+  "dune"                        {>= "3.17.0"}
   "num"
-  "uutf"                   {>= "1.0.2"}
+  "uutf"                        {>= "1.0.2"}
 ]
 available: arch != "x86_32"
 conflicts: [

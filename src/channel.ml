@@ -289,6 +289,5 @@ let start () =
            ~on_handshake_error:`Raise)
   in
   Ivar.fill_exn t.server server;
-  Shutdown.at_shutdown (fun () -> close t);
   return t
 ;;
